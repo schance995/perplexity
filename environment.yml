@@ -1,0 +1,9 @@
+name: tutorial
+dependencies:
+  - python=3.9
+  - salmon
+  - snakemake
+channels:
+  - conda-forge
+  - bioconda
+  - defaults

@@ -17,7 +17,7 @@ reads_2_fmt = join(READS_DIR, '{sample_name}',  'train', '{k}', '{sample_name}_2
 test_reads_1_fmt = join(READS_DIR, '{sample_name}', 'test', '{k}', '{sample_name}_1.fasta')
 test_reads_2_fmt = join(READS_DIR, '{sample_name}',  'test', '{k}', '{sample_name}_2.fasta')
 
-quant_dir_fmt = join(QUANTS_DIR, '{sample_name}','{k}')
+quant_dir_fmt = join(QUANTS_DIR, '{sample_name}', 'bins_{bins}', '{k}')
 eq_classes_gz_fmt = join(quant_dir_fmt, 'aux_info', 'eq_classes.txt.gz')
 quant_file_fmt = join(quant_dir_fmt, 'quant.sf')
 
@@ -25,7 +25,7 @@ test_ecs_dir_fmt = join(OUTPUT_DIR, 'test-ecs', '{sample_name}', '{k}')
 test_ecs_fmt = join(test_ecs_dir_fmt, 'aux_info', 'eq_classes.txt.gz')
 
 perplexity_dir = join(OUTPUT_DIR, 'perplexity')
-perplexity_fmt = join(perplexity_dir, '{sample_name}', '{k}', 'perplexity.yml')
+perplexity_fmt = join(perplexity_dir, '{sample_name}', 'bins_{bins}', '{k}', 'perplexity.yml')
 
 N_folds = config['k']
 
@@ -33,18 +33,22 @@ PERPLEXITY = config['perplexity-bin']
 
 _FOLDS = range(1, N_folds+1)
 
+N_bins = config['bins']
+
+_BINS = range(1, N_bins+1)
+
 rule perplexity:
     input:
-        expand(perplexity_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS)
+        expand(perplexity_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS)
 
 rule quant:
     input:
-        expand(eq_classes_gz_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS),
-        expand(quant_file_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS),
+        expand(eq_classes_gz_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS),
+        expand(quant_file_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS),
 
 rule test_ecs:
     input:
-        expand(test_ecs_fmt,sample_name=SAMPLES_NAMES, k=_FOLDS)
+        expand(test_ecs_fmt,sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS)
 
 rule _perplexity:
     input:
@@ -79,15 +83,13 @@ rule _quant:
     params:
         cores = config.get('salmon_cores', 8),
         outdir = directory(quant_dir_fmt),
-        range_fac = '' if config.get('range_fac', True) \
-                       else '--rangeFactorizationBins 1'
     shell:
         '''
         salmon quant -i {input.index} -l A \
             -1 {input.mate1} \
             -2 {input.mate2} \
             -o {params.outdir} \
-            {params.range_fac} \
+            --rangeFactorizationBins {wildcards.bins} \
             -p {params.cores} \
             --validateMappings \
             --dumpEqWeights
