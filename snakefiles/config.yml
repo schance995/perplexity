@@ -5,12 +5,14 @@ out-dir: output/bin_selection
 # expects paired end reads with format:
 #    {reads-dir}/{sample_name}/{sample_name}_1.fasta
 #    {reads-dir}/{sample_name}/{sample_name}_2.fasta
-reads-dir: data
+
+reads-dir: /fs/cbcb-lab/rob/students/jason/rnaseq-data/output/copd.wabi-backup/simulated_reads/SRR1265495
 sample-names:
-- DRR016125
+- sample_01
+#- SRR1265495
 
 # Path to reference transcriptome for salmon
-txome-path: data/athal.fa.gz
+txome-path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19.fa.gz
 
 # Path to perplexity binary, and kfolds.sh script
 perplexity-bin: target/release/perplexity
@@ -20,4 +22,4 @@ kfold-script: scripts/kfolds.sh
 k: 5
 
 # Number of bins. Minimum of 1. Recommended 4 (value used in the range-factorization paper)
-bins: 4
+bins: 8
