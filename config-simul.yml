@@ -1,0 +1,5 @@
+exp_name: tutorial
+reads_dir: /fs/cbcb-lab/rob/students/jason/shared/COPD-raw-data/output
+tx_path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19_clean.fa
+sample_names:
+  - SRR1265495
