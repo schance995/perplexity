@@ -1,50 +1,53 @@
 from os.path import join
 
 ### Quantify
-OUTPUT_DIR = config['out-dir']
-READS_DIR = join(OUTPUT_DIR, 'folds')
-
+EXP_NAME = config['exp-name']
+OUTPUT_DIR = join(config.get('out-dir', 'output'), EXP_NAME)
+READS_DIR = config['folds-dir']
 SAMPLES_NAMES = config['sample-names']
 
 TX_PATH = config['txome-path']
-TX_INDEX = join(OUTPUT_DIR, 'salmon_index')
+TX_INDEX = config.get('index_path', join(OUTPUT_DIR, '{}_index'.format(EXP_NAME)))
 
 QUANTS_DIR = join(OUTPUT_DIR, 'quants')
 
-reads_1_fmt = join(READS_DIR, '{sample_name}', 'train', '{k}', '{sample_name}_1.fasta')
-reads_2_fmt = join(READS_DIR, '{sample_name}',  'train', '{k}', '{sample_name}_2.fasta')
+READ_FMT = config.get('read_file_fmt', 'fastq.gz')
 
-test_reads_1_fmt = join(READS_DIR, '{sample_name}', 'test', '{k}', '{sample_name}_1.fasta')
-test_reads_2_fmt = join(READS_DIR, '{sample_name}',  'test', '{k}', '{sample_name}_2.fasta')
+reads_1_fmt = join(READS_DIR, '{sample_name}', 'train', '{k}', '{sample_name}_1.'+READ_FMT)
+reads_2_fmt = join(READS_DIR, '{sample_name}',  'train', '{k}', '{sample_name}_2.'+READ_FMT)
 
-quant_dir_fmt = join(QUANTS_DIR, '{sample_name}','{k}')
+test_reads_1_fmt = join(READS_DIR, '{sample_name}', 'test', '{k}', '{sample_name}_1.'+READ_FMT)
+test_reads_2_fmt = join(READS_DIR, '{sample_name}',  'test', '{k}', '{sample_name}_2.'+READ_FMT)
+
+quant_dir_fmt = join(QUANTS_DIR, '{sample_name}','vbprior={vbprior}','{k}')
 eq_classes_gz_fmt = join(quant_dir_fmt, 'aux_info', 'eq_classes.txt.gz')
 quant_file_fmt = join(quant_dir_fmt, 'quant.sf')
+gene_quant_file_fmt = join(OUTPUT_DIR, 'gene_quants', '{sample_name}','vbprior={vbprior}','{k}', 'gene_quant.sf')
+
 
 test_ecs_dir_fmt = join(OUTPUT_DIR, 'test-ecs', '{sample_name}', '{k}')
 test_ecs_fmt = join(test_ecs_dir_fmt, 'aux_info', 'eq_classes.txt.gz')
 
-perplexity_dir = join(OUTPUT_DIR, 'perplexity')
-perplexity_fmt = join(perplexity_dir, '{sample_name}', '{k}', 'perplexity.yml')
-
 N_folds = config['k']
+PRIOR_WEIGHTS = config['prior-weights']
 
-PERPLEXITY = config['perplexity-bin']
+
+# NOTE: Snakefile expects perplexity binary to be in specified path
+PERPLEXITY = '../../perplexity/target/release/perplexity'
 
 _FOLDS = range(1, N_folds+1)
 
+############ PERPLEXITY ############################################################
+
+BETAS = config.get('betas', ['1e-8'])
+perplexity_dir = join(OUTPUT_DIR, 'perplexity')
+perplexity_fmt = join(perplexity_dir, '{sample_name}', 'vbprior={vbprior}',
+                     'beta={beta}', '{k}', 'perplexity.yml')
+
 rule perplexity:
     input:
-        expand(perplexity_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS)
+        expand(perplexity_fmt, sample_name=SAMPLES_NAMES, vbprior=PRIOR_WEIGHTS, k=_FOLDS, beta=BETAS),
 
-rule quant:
-    input:
-        expand(eq_classes_gz_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS),
-        expand(quant_file_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS),
-
-rule test_ecs:
-    input:
-        expand(test_ecs_fmt,sample_name=SAMPLES_NAMES, k=_FOLDS)
 
 rule _perplexity:
     input:
@@ -60,7 +63,37 @@ rule _perplexity:
             --train_ecs {input.train_ecs} \
             --quants {input.train_quant} \
             --test_ecs {input.test_ecs} \
+            --smoothing {wildcards.beta}
         '''
+
+############ QUANTS and validation time equivalence classes #########################
+rule quant:
+    input:
+        expand(eq_classes_gz_fmt, sample_name=SAMPLES_NAMES, vbprior=PRIOR_WEIGHTS, k=_FOLDS),
+        expand(quant_file_fmt, sample_name=SAMPLES_NAMES, vbprior=PRIOR_WEIGHTS, k=_FOLDS),
+
+rule test_ecs:
+    input:
+        expand(test_ecs_fmt,sample_name=SAMPLES_NAMES, k=_FOLDS)
+
+##########################################################################################################
+rule tx2gene:
+    input:
+        expand(gene_quant_file_fmt, sample_name=SAMPLES_NAMES, vbprior=PRIOR_WEIGHTS, k=_FOLDS)
+
+#rule _tx2gene:
+#    input:
+#        quant_file_fmt
+#    output:
+#        gene_quant_file_fmt
+#    shell:
+#        '''
+#        Rscript tx2gene.R \
+#            {input} \
+#            {output}
+#        '''
+
+##########################################################################################################
         
 ###
 # SALMON params
@@ -72,13 +105,13 @@ rule _quant:
         mate2=reads_2_fmt,
         index=TX_INDEX
     output:
-        # Snakemake does not like that this directory is substring of output of unzip?        
-        #outdir = directory(quant_dir_fmt),
+        # Snakemake does not like if an output directory is the parent of another output 
+        # outdir = directory(quant_dir_fmt),
         eq_classes_gz=eq_classes_gz_fmt,
         quants=quant_file_fmt
     params:
         cores = config.get('salmon_cores', 8),
-        outdir = directory(quant_dir_fmt),
+        outdir = directory(quant_dir_fmt), # sidestepping snakemake constraint
         range_fac = '' if config.get('range_fac', True) \
                        else '--rangeFactorizationBins 1'
     shell:
@@ -89,8 +122,10 @@ rule _quant:
             -o {params.outdir} \
             {params.range_fac} \
             -p {params.cores} \
+            --vbPrior {wildcards.vbprior} \
             --validateMappings \
-            --dumpEqWeights
+            --dumpEqWeights \
+            --numGibbsSamples 20
         '''
 
 rule _test_ecs:
@@ -102,7 +137,7 @@ rule _test_ecs:
         ecs=test_ecs_fmt,
     params:
         cores = config.get('salmon_cores', 8),
-        outdir = directory(test_ecs_dir_fmt), # sidestepping possible snakemake issue
+        outdir = directory(test_ecs_dir_fmt), # sidestepping snakemake constraint
     shell:
         '''
         salmon quant -i {input.index} -l A \

@@ -1,0 +1,78 @@
+from os.path import join
+
+R='Rscript'
+run_polyester= '../scripts/run_polyester.R'
+
+#tx = config['simul_tx']
+sample_names = config['sample_names']
+exp_name = config['exp_name']
+quant_dir_fmt = join('output', exp_name, 'quants', '{sample_name}')
+quant_file_fmt = join(quant_dir_fmt, 'quant.sf')
+out_dir_fmt = join('output', exp_name, 'simulated_reads', '{sample_name}')
+
+tx_path = config['tx_path']
+tx_index = config.get('index_path', join('output', '{}'.format(exp_name), 'index'))
+print(tx_path)
+print(tx_index)
+
+read_fmt = config.get('read_file_fmt', 'fastq.gz')
+
+reads_dir = config['reads_dir']
+
+reads_1_fmt = join(reads_dir, '{sample_name}', '{sample_name}_1.'+read_fmt)
+reads_2_fmt = join(reads_dir, '{sample_name}', '{sample_name}_2.'+read_fmt)
+
+rule all:
+    input:
+        expand(out_dir_fmt, sample_name=sample_names)
+
+rule gen_reads:
+    input:
+        tx = tx_path,
+        quants = quant_file_fmt,
+    output:
+        directory(out_dir_fmt)
+    shell:
+        '''
+        {R} {run_polyester} \
+            {input.tx} \
+            {input.quants} \
+            {output}
+        '''
+
+rule quant:
+    input:
+        expand(quant_file_fmt, sample_name=sample_names)
+
+rule _quant:
+    input:
+        mate1=reads_1_fmt,
+        mate2=reads_2_fmt,
+        index=tx_index
+    output:
+        # Snakemake does not like if an output directory is the parent of another output 
+        #outdir = directory(quant_dir_fmt),
+        #eq_classes_gz=eq_classes_gz_fmt,
+        quants=quant_file_fmt
+    params:
+        cores = config.get('salmon_cores', 8),
+        outdir = directory(quant_dir_fmt), # sidestepping snakemake constraint
+    shell:
+        '''
+        salmon quant -i {input.index} -l A \
+            -1 {input.mate1} \
+            -2 {input.mate2} \
+            -o {params.outdir} \
+            -p {params.cores} \
+            --validateMappings
+        '''
+
+rule index:
+    input:
+        tx_path
+    output:
+        directory(tx_index)
+    shell:
+        '''
+        salmon index -t {input} -i {output}
+        '''
