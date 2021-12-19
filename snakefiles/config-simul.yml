@@ -1,5 +1,5 @@
-exp_name: simulated_reads
+exp_name: simul_reads
 reads_dir: /fs/cbcb-lab/rob/students/jason/shared/COPD-raw-data/output
 tx_path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19_clean.fa
 sample_names:
-  - SRR1265495
+  - SRR1265600

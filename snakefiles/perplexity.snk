@@ -33,7 +33,7 @@ PRIOR_WEIGHTS = config['prior-weights']
 
 
 # NOTE: Snakefile expects perplexity binary to be in specified path
-PERPLEXITY = '../../perplexity/target/release/perplexity'
+PERPLEXITY = config.get('perplexity-bin', 'target/release/perplexity')
 
 _FOLDS = range(1, N_folds+1)
 

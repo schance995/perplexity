@@ -40,7 +40,7 @@ readspertx = round(coverage * tx_lengths / read_length)
 #print(readspertx)
 
 set.seed(2021)
-# each run produces ~14.7M reads, run 5 times to get ~75M reads total
+# each run produces ~14.7M reads, run 7 times for 100M reads
 # https://github.com/alyssafrazee/polyester/issues/9#issuecomment-77029729
 # from ?simulate_experiment
 # No return, but simulated reads and a simulation info file are
@@ -64,10 +64,9 @@ simul <- function(out) {
     )
 }
 
-for (i in 1:5) {
-    out <- paste0(args[3], '/train/', i)
+# 14.7 * 7 = 102.9
+for (i in 1:7) {
+    out <- paste0(args[3], '/', i)
     simul(out)
-    # cannot set the name in this function, so move the files afterwards
 }
-simul(paste0(args[3], '/test'))
 print('DONE')

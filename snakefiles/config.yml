@@ -18,7 +18,7 @@ txome-path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19_clean.fa
 folds-dir: /fs/cbcb-lab/rob/students/skylar/perplexity/output/tutorial/folds
 
 # Path to perplexity binary, and kfolds.sh script
-perplexity-bin: target/debug/perplexity
+perplexity-bin: target/release/perplexity
 kfold-script: scripts/kfolds.sh
 
 # Number of folds

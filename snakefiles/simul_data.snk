@@ -1,7 +1,8 @@
 from os.path import join
 
 R='Rscript'
-run_polyester= '../scripts/run_polyester.R'
+run_polyester= 'scripts/run_polyester.R'
+combine_polyester_reads= 'scripts/cobmine_polyester_reads.R'
 
 #tx = config['simul_tx']
 sample_names = config['sample_names']
@@ -22,9 +23,31 @@ reads_dir = config['reads_dir']
 reads_1_fmt = join(reads_dir, '{sample_name}', '{sample_name}_1.'+read_fmt)
 reads_2_fmt = join(reads_dir, '{sample_name}', '{sample_name}_2.'+read_fmt)
 
+# the last simulated read
+gen_read_fmt = join('output', exp_name, 'simulated_reads', '{sample_name}', '7', 'sample_02.fasta')
+test_train_fmt = join('output', exp_name, '{sample_name}', 'data')
+
 rule all:
     input:
         expand(out_dir_fmt, sample_name=sample_names)
+
+#rule test_train_split:
+#    input:
+#        expand(gen_read_fmt, sample_name=sample_names)
+#
+## directory can't be input
+#rule _test_train_split:
+#    input:
+#        gen_read_fmt
+#    output:
+#        o1=directory(out_dir_fmt),
+#        o2=directory(test_train_fmt),
+#    shell:
+#        '''
+#        {R} {combine_polyester_reads} \
+#            {output.o1} \
+#            {output.o2}
+#        '''
 
 rule gen_reads:
     input:
