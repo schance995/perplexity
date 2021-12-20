@@ -1,15 +1,29 @@
 from os.path import join
 
+<<<<<<< HEAD
 EXP_NAME = config['exp-name']
 out_dir = join(config.get('out-dir', 'output'), EXP_NAME)
 reads_dir = config['reads-dir']
 NAMES = config['sample-names']
 
+=======
+out_dir = config['out-dir']
+reads_dir = config['reads-dir']
+NAMES = config['sample-names']
+
+#fqgz_reads_fmt = join(reads_dir, '{{name}}', '{{name}}_{end}.fastq.gz')
+#L_fqgz_fmt = fqgz_reads_fmt.format(end=1)
+#R_fqgz_fmt = fqgz_reads_fmt.format(end=2)
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
 raw_reads_fmt = join(reads_dir, '{{name}}_{end}.fasta')
 L_reads_fmt = raw_reads_fmt.format(end=1)
 R_reads_fmt = raw_reads_fmt.format(end=2)
 
+<<<<<<< HEAD
 output_dir_fmt = raw_reads_fmt = join(out_dir, 'folds', '{name}')
+=======
+output_dir_fmt = join(out_dir, 'folds', '{name}')
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
 SEED = 2021
 
 rule all:
@@ -35,3 +49,21 @@ rule kfold:
             -s {params.seed} \
             -o {output}
         '''
+<<<<<<< HEAD
+=======
+
+#rule fqgz_to_fa:
+#    input:
+#        lfq=L_fqgz_fmt,
+#        rfq=R_fqgz_fmt,
+#    output:
+#        lfa=L_reads_fmt,
+#        rfa=R_reads_fmt,
+#    shell:
+#        # https://stackoverflow.com/questions/1542306/converting-fastq-to-fasta-with-sed-awk/10359425#10359425
+#        '''
+#        gunzip --stdout {input.lfq} | sed -n '1~4s/^@/>/p;2~4p' > {output.lfa} &
+#        gunzip --stdout {input.rfq} | sed -n '1~4s/^@/>/p;2~4p' > {output.rfa} &
+#        wait
+#        '''
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508

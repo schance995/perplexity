@@ -1,0 +1,18 @@
+name: tutorial
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.9
+  - salmon
+  - snakemake
+  - bioconductor-polyester
+  - future
+  - coloredlogs
+  - r-essentials
+  - r-base
+  - jupyter
+  - seaborn
+  - matplotlib
+  - nbstripout
+  - pandas

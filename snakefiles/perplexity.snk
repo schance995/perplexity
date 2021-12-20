@@ -1,6 +1,7 @@
 from os.path import join
 
 ### Quantify
+<<<<<<< HEAD
 EXP_NAME = config['exp-name']
 OUTPUT_DIR = join(config.get('out-dir', 'output'), EXP_NAME)
 READS_DIR = config['folds-dir']
@@ -24,10 +25,32 @@ eq_classes_gz_fmt = join(quant_dir_fmt, 'aux_info', 'eq_classes.txt.gz')
 quant_file_fmt = join(quant_dir_fmt, 'quant.sf')
 gene_quant_file_fmt = join(OUTPUT_DIR, 'gene_quants', '{sample_name}','vbprior={vbprior}','{k}', 'gene_quant.sf')
 
+=======
+OUTPUT_DIR = config['out-dir']
+READS_DIR = join(OUTPUT_DIR, 'folds')
+
+SAMPLES_NAMES = config['sample-names']
+
+TX_PATH = config['txome-path']
+TX_INDEX = join(OUTPUT_DIR, 'salmon_index')
+
+QUANTS_DIR = join(OUTPUT_DIR, 'quants')
+
+reads_1_fmt = join(READS_DIR, '{sample_name}', 'train', '{k}', '{sample_name}_1.fasta')
+reads_2_fmt = join(READS_DIR, '{sample_name}',  'train', '{k}', '{sample_name}_2.fasta')
+
+test_reads_1_fmt = join(READS_DIR, '{sample_name}', 'test', '{k}', '{sample_name}_1.fasta')
+test_reads_2_fmt = join(READS_DIR, '{sample_name}',  'test', '{k}', '{sample_name}_2.fasta')
+
+quant_dir_fmt = join(QUANTS_DIR, '{sample_name}', 'bins_{bins}', '{k}')
+eq_classes_gz_fmt = join(quant_dir_fmt, 'aux_info', 'eq_classes.txt.gz')
+quant_file_fmt = join(quant_dir_fmt, 'quant.sf')
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
 
 test_ecs_dir_fmt = join(OUTPUT_DIR, 'test-ecs', '{sample_name}', '{k}')
 test_ecs_fmt = join(test_ecs_dir_fmt, 'aux_info', 'eq_classes.txt.gz')
 
+<<<<<<< HEAD
 N_folds = config['k']
 PRIOR_WEIGHTS = config['prior-weights']
 
@@ -48,6 +71,33 @@ rule perplexity:
     input:
         expand(perplexity_fmt, sample_name=SAMPLES_NAMES, vbprior=PRIOR_WEIGHTS, k=_FOLDS, beta=BETAS),
 
+=======
+perplexity_dir = join(OUTPUT_DIR, 'perplexity')
+perplexity_fmt = join(perplexity_dir, '{sample_name}', 'bins_{bins}', '{k}', 'perplexity.yml')
+
+N_folds = config['k']
+
+PERPLEXITY = config['perplexity-bin']
+
+_FOLDS = range(1, N_folds+1)
+
+N_bins = config['bins']
+
+_BINS = range(1, N_bins+1)
+
+rule perplexity:
+    input:
+        expand(perplexity_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS)
+
+rule quant:
+    input:
+        expand(eq_classes_gz_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS),
+        expand(quant_file_fmt, sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS),
+
+rule test_ecs:
+    input:
+        expand(test_ecs_fmt,sample_name=SAMPLES_NAMES, k=_FOLDS, bins=_BINS)
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
 
 rule _perplexity:
     input:
@@ -63,6 +113,7 @@ rule _perplexity:
             --train_ecs {input.train_ecs} \
             --quants {input.train_quant} \
             --test_ecs {input.test_ecs} \
+<<<<<<< HEAD
             --smoothing {wildcards.beta}
         '''
 
@@ -94,6 +145,9 @@ rule tx2gene:
 #        '''
 
 ##########################################################################################################
+=======
+        '''
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
         
 ###
 # SALMON params
@@ -105,27 +159,43 @@ rule _quant:
         mate2=reads_2_fmt,
         index=TX_INDEX
     output:
+<<<<<<< HEAD
         # Snakemake does not like if an output directory is the parent of another output 
         # outdir = directory(quant_dir_fmt),
+=======
+        # Snakemake does not like that this directory is substring of output of unzip?        
+        #outdir = directory(quant_dir_fmt),
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
         eq_classes_gz=eq_classes_gz_fmt,
         quants=quant_file_fmt
     params:
         cores = config.get('salmon_cores', 8),
+<<<<<<< HEAD
         outdir = directory(quant_dir_fmt), # sidestepping snakemake constraint
         range_fac = '' if config.get('range_fac', True) \
                        else '--rangeFactorizationBins 1'
+=======
+        outdir = directory(quant_dir_fmt),
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
     shell:
         '''
         salmon quant -i {input.index} -l A \
             -1 {input.mate1} \
             -2 {input.mate2} \
             -o {params.outdir} \
+<<<<<<< HEAD
             {params.range_fac} \
             -p {params.cores} \
             --vbPrior {wildcards.vbprior} \
             --validateMappings \
             --dumpEqWeights \
             --numGibbsSamples 20
+=======
+            --rangeFactorizationBins {wildcards.bins} \
+            -p {params.cores} \
+            --validateMappings \
+            --dumpEqWeights
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
         '''
 
 rule _test_ecs:
@@ -137,7 +207,11 @@ rule _test_ecs:
         ecs=test_ecs_fmt,
     params:
         cores = config.get('salmon_cores', 8),
+<<<<<<< HEAD
         outdir = directory(test_ecs_dir_fmt), # sidestepping snakemake constraint
+=======
+        outdir = directory(test_ecs_dir_fmt), # sidestepping possible snakemake issue
+>>>>>>> 3aa7a1f26f69e354cbcf631595f795235332f508
     shell:
         '''
         salmon quant -i {input.index} -l A \
