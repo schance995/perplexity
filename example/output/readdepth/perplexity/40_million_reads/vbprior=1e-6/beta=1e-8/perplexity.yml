@@ -1,0 +1,17 @@
+---
+smoothed_perplexity: 1101.9342953775295
+n_ecs: 16294675
+n_reads: 19999979
+n_possible_ecs: 16294675
+n_possible_reads: 19999979
+n_impossible_ecs: 0
+n_impossible_reads: 0
+n_discarded_ecs: 0
+n_discarded_reads: 0
+class_ec_freq:
+  PossibleUnique: 30643
+  PossibleAmbig: 16264032
+class_read_freq:
+  PossibleAmbig: 19384388
+  PossibleUnique: 615591
+class_read_count_freq: {}

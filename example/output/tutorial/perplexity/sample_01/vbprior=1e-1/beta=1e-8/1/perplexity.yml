@@ -1,0 +1,48 @@
+---
+smoothed_perplexity: 1500.281420098923
+n_ecs: 188424
+n_reads: 3035878
+n_possible_ecs: 187419
+n_possible_reads: 3034752
+n_impossible_ecs: 1005
+n_impossible_reads: 1126
+n_discarded_ecs: 665
+n_discarded_reads: 733
+class_ec_freq:
+  ImpossibleUnique: 271
+  ImpossibleAmbig: 46
+  ImpossibleAmbigContainsNovel: 23
+  PossibleAmbig: 148640
+  PossibleUnique: 38064
+  ImpossibleUniqueNovel: 575
+  ImpossibleAmbigOnlyNovel: 90
+  PossibleAmbigNovel: 715
+class_read_freq:
+  PossibleAmbig: 1909600
+  ImpossibleUnique: 316
+  ImpossibleUniqueNovel: 639
+  ImpossibleAmbig: 54
+  PossibleUnique: 1124367
+  ImpossibleAmbigContainsNovel: 23
+  ImpossibleAmbigOnlyNovel: 94
+  PossibleAmbigNovel: 785
+class_read_count_freq:
+  ImpossibleAmbigOnlyNovel:
+    1: 86
+    2: 4
+  ImpossibleUniqueNovel:
+    1: 516
+    3: 5
+    2: 54
+  ImpossibleUnique:
+    4: 1
+    1: 238
+    3: 7
+    5: 1
+    2: 24
+  ImpossibleAmbig:
+    1: 40
+    2: 4
+    3: 2
+  ImpossibleAmbigContainsNovel:
+    1: 23
