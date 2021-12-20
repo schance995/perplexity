@@ -6,15 +6,19 @@ exp-name: tutorial
 # expects paired end reads with format:
 #    {reads-dir}/{sample_name}_1.fasta
 #    {reads-dir}/{sample_name}_2.fasta
-reads-dir: /fs/cbcb-lab/rob/students/jason/shared/SRR1265495/
 read_file_fmt: fasta
+# replace with your reads directory
+reads-dir: /fs/cbcb-lab/rob/students/jason/shared/SRR1265495/
+# replace with your sample names to quantify (can be more than 1)
 sample-names:
   - sample_01
+  # - sample_02
 
 # Path to reference transcriptome for salmon
 txome-path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19_clean.fa
 
-# where to find folds
+# where to find folds, recommended to put this in {current working directory}/output/tutorial/folds
+# for example my working directory is /fs/cbcb-lab/rob/students/skylar/perplexity
 folds-dir: /fs/cbcb-lab/rob/students/skylar/perplexity/output/tutorial/folds
 
 # Path to perplexity binary, and kfolds.sh script
@@ -25,6 +29,7 @@ kfold-script: scripts/kfolds.sh
 k: 5
 
 # VBEM weights to test with
+# The default value is 1e-5
 prior-weights:
   - 1e-6
   - 1e-5

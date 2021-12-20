@@ -1,5 +1,9 @@
+# results will go in output/{exp-name}
 exp_name: simul_reads
+# reads to base the simulation off of
 reads_dir: /fs/cbcb-lab/rob/students/jason/shared/COPD-raw-data/output
+# transcript to generation abundance estimate
 tx_path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19_clean.fa
+# name of samples to use
 sample_names:
   - SRR1265600
