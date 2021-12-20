@@ -1,0 +1,52 @@
+# EXAMPLE config file for snakemake workflows
+# results will go in output/{exp-name}
+out-dir: output
+exp-name: readdepth
+
+# expects paired end reads with format:
+#    {reads-dir}/{sample_name}_1.fasta
+#    {reads-dir}/{sample_name}_2.fasta
+reads-dir: /fs/cbcb-lab/rob/students/skylar/perplexity/output/simul_reads/simulated_reads/SRR1265600
+read_file_fmt: fasta
+sample-names:
+  - 10_million_reads
+  - 20_million_reads
+  - 30_million_reads
+  - 40_million_reads
+  - 50_million_reads
+  - 60_million_reads
+  - 70_million_reads
+  - 80_million_reads
+
+# Path to reference transcriptome for salmon
+txome-path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19_clean.fa
+
+# where to find folds
+# folds-dir: /fs/cbcb-lab/rob/students/skylar/perplexity/output/tutorial/folds
+
+# Path to perplexity binary, and kfolds.sh script
+perplexity-bin: target/release/perplexity
+kfold-script: scripts/kfolds.sh
+
+# Number of folds
+k: 5
+
+# VBEM weights to test with
+prior-weights:
+  - 1e-6
+  - 1e-5
+  - 1e-4
+  - 1e-3
+  - 1e-2
+  - 1e-1
+  - 1e0
+  - 1e1
+  - 1e2
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7 
+  - 8
+  - 9

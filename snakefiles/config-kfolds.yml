@@ -1,0 +1,20 @@
+# EXAMPLE config file for snakemake workflows
+# output directory
+out-dir: output/tutorial
+
+# expects paired end reads with format:
+#    {reads-dir}/{sample_name}/{sample_name}_1.fasta
+#    {reads-dir}/{sample_name}/{sample_name}_2.fasta
+reads-dir: /fs/cbcb-lab/rob/students/jason/shared/SRR1265495/
+sample-names:
+  - sample_01
+
+# Path to reference transcriptome for salmon
+txome-path: /fs/cbcb-lab/rob/students/jason/shared/annotations/hg19_clean.fa
+
+# Path to perplexity binary, and kfolds.sh script
+perplexity-bin: target/release/perplexity
+kfold-script: scripts/kfolds.sh
+
+# Number of folds
+k: 5
